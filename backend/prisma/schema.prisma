@@ -36,6 +36,14 @@ model Institution {
   teachers       Teacher[]
   secretaries    Secretary[]
   createdAt      DateTime    @default(now())
+
+  address         String?
+  district        String?
+  state           String?
+  pincode         String?
+  email           String?
+  contactNumber   String?
+  institutionType String?
 }
 
 model Teacher {
@@ -81,4 +89,77 @@ model UsersTemp {
   adminActionTime DateTime?
 }
 
+// 
+// Bank Details {
+// bank name
+// bank accc number
+// ifsc code
+// }
+//   Address Text;
+//  
 
+model Group {
+  id            String           @id @default(cuid())
+  groupName     String?
+  members       GroupMember[]
+  impacts       ImpactActivity[]
+  presentations Presentation[]
+  createdAt     DateTime         @default(now())
+}
+
+model GroupMember {
+  id        String   @id @default(cuid())
+  groupId   String
+  group     Group    @relation(fields: [groupId], references: [id])
+  name      String
+  createdAt DateTime @default(now())
+
+  @@index([groupId])
+}
+
+// ==================== Impact Activity ====================
+model ImpactActivity {
+  id      String @id @default(cuid())
+  groupId String
+  group   Group  @relation(fields: [groupId], references: [id])
+
+  organizationName    String?
+  leaderName          String?
+  date                DateTime?
+  messagePropagated   String?
+  activityDurationMin Int?
+  location            String?
+  participantsCount   Int?
+
+  resourcesInvolved String?
+  socialMediaLinks  String?
+  mediaLinks        String?
+  remarks           String?
+
+  createdAt DateTime @default(now())
+
+  @@index([groupId])
+}
+
+//==================== Presentation Details ====================
+model Presentation {
+  id      String @id @default(cuid())
+  groupId String
+  group   Group  @relation(fields: [groupId], references: [id])
+
+  mentorFaculty  String?
+  schoolName     String?
+  taluka         String?
+  city           String?
+  district       String?
+  principalName  String?
+  schoolContact  String?
+  medium         String?
+  date           DateTime?
+  std5BoysCount  Int?
+  std5GirlsCount Int?
+
+  createdAt DateTime @default(now())
+
+  @@index([groupId])
+}
