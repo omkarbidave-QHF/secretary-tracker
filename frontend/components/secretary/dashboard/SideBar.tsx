@@ -9,6 +9,9 @@ import {
 	ClipboardList,
 	Presentation,
 	Megaphone,
+	Shield,
+	TrendingUp,
+	CalendarDays,
 } from "lucide-react";
 
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -88,6 +91,32 @@ const Sidebar = () => {
 						icon={<ClipboardList size={20} />}
 						label="Execution Plan"
 						to="/secretary/execution-plan"
+						pathname={pathname}
+						router={router}
+					/>
+					<NavItem
+						icon={<CalendarDays size={20} />}
+						label="Meeting Log"
+						to="/secretary/meeting"
+						pathname={pathname}
+						router={router}
+					/>
+
+					{/* Performance Section */}
+					<p className="px-3 pt-4 text-xs font-semibold text-gray-500 uppercase">
+						Performance
+					</p>
+					<NavItem
+						icon={<Shield size={20} />}
+						label="Warrior Performance"
+						to="/secretary/warrior-performance"
+						pathname={pathname}
+						router={router}
+					/>
+					<NavItem
+						icon={<TrendingUp size={20} />}
+						label="Club Performance"
+						to="/secretary/club-performance"
 						pathname={pathname}
 						router={router}
 					/>
