@@ -57,17 +57,16 @@ model Institution {
 }
 
 model Secretary {
-  id            String   @id @default(cuid())
-  name          String
-  contactNumber String   @unique
-  password      String
-  email         String   @unique
-  createdAt     DateTime @default(now())
-  address       String?
-  bankName      String?
-  bankAccNumber String?
-  ifscCode      String?
-
+  id             String      @id @default(cuid())
+  name           String
+  contactNumber  String      @unique
+  password       String
+  email          String      @unique
+  createdAt      DateTime    @default(now())
+  address        String?
+  bankName       String?
+  bankAccNumber  String?
+  ifscCode       String?
   teacherId      String      @unique
   teacher        Teacher     @relation(fields: [teacherId], references: [id])
   institution_id String      @unique
@@ -87,12 +86,6 @@ model UsersTemp {
   adminActionTime DateTime?
 }
 
-// 
-// Bank Details {
-// bank name
-// bank accc number
-// ifsc code
-// }
 
 model Group {
   id            String           @id @default(cuid())
@@ -114,7 +107,7 @@ model CyberWarrior {
   @@index([groupId])
 }
 
-// ==================== Impact Activity ====================
+//Impact Activity 
 model ImpactActivity {
   id      String @id @default(cuid())
   groupId String
@@ -132,6 +125,8 @@ model ImpactActivity {
   socialMediaLinks  String?
   mediaLinks        String?
   remarks           String?
+  feedback          String?    // URL to uploaded feedback PDF
+  photos            String[]   // array of string bcoz it can have multiple photos urls
 
   createdAt DateTime @default(now())
 
@@ -150,7 +145,7 @@ enum Class {
   SrCollege
 }
 
-// ==================== Presentation Details ====================
+// Presentation Details
 model Presentation {
   id      String @id @default(cuid())
   groupId String
@@ -159,14 +154,16 @@ model Presentation {
   mentorFaculty String?
   classType     String
   schoolName    String
-  taluka        String?
-  city          String?
-  district      String?
-  principalName String?
-  schoolContact String?
+  taluka        String
+  city          String
+  district      String
+  principalName String
+  schoolContact String
   medium        String?
-  date          DateTime?
+  date          DateTime
   studentsClass Students[]
+  feedback      String?    // URL to uploaded feedback PDF
+  photos        String[]   // array of string bcoz it can have multiple photos urls
 
   createdAt DateTime @default(now())
 
@@ -182,3 +179,93 @@ model Students {
   presentation   Presentation? @relation(fields: [presentationId], references: [id])
   presentationId String?
 }
+
+model Mass_Activity {
+  id                String    @id @default(cuid())
+
+  activityName        String
+  activityDescription String
+  date                DateTime
+  duration            String     
+  location            String
+  participantsCount   Int
+  stakeholders        String     
+  socialMediaLinks    String[]
+  mediaLinks          String[]
+  photos              String[]
+
+  institutionId   String
+  institution     Institution @relation(fields: [institutionId], references: [institution_id])
+
+
+  createdAt           DateTime  @default(now())
+  @@index([institutionId])
+  
+}
+
+model ExecutionPlan {
+  id        String   @id @default(cuid())
+
+  week      String    
+
+  // Presentation
+  Presentation_Commited            Int?
+  Presentatin_Achieved            Int?
+  Presentation_Surplus            Int?
+
+  Students_Sanitized_Commited     Int?
+  Students_Sanitized_Achieved     Int?
+  Sanitized_Surplus               Int?
+
+  //Impact 
+  Impact_Commited                 Int?
+  Impact_Achieved                 Int?
+  Impact_Surplus                  Int?
+
+  Impact_Outreach_Commited        Int?
+  Impact_Outreach_Achieved        Int?
+  Impact_Outreach_Surplus         Int?
+
+  // Mass
+  Mass_Commited                   Int?
+  Mass_Achieved                   Int?
+  Mass_Surplus                    Int?
+
+  Mass_Outreach_Commited          Int?
+  Mass_Outreach_Achieved          Int?
+  Mass_Outreach_Surplus           Int?
+
+  
+  institutionId   String
+  institution     Institution @relation(fields: [institutionId], references: [institution_id])
+
+  createdAt       DateTime   @default(now())
+
+  @@index([institutionId])
+  @@index([week])
+}
+
+model Meeting {
+  id              String    @id @default(cuid())
+
+  meetingNumber   String     
+  meetingDate     DateTime   
+
+  agendaItems     String[]   
+
+  conclusion      String     
+  remark          String?    
+
+  
+  attendancePhoto String?    // URL to uploaded attendance image
+  geoTagPhoto     String?    // URL to geo-tagged photo
+
+  institutionId   String
+  institution     Institution @relation(fields: [institutionId], references: [institution_id])
+
+  createdAt       DateTime @default(now())
+
+  @@index([institutionId])
+  @@index([meetingDate])
+}
+
