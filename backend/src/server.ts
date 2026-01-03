@@ -9,6 +9,7 @@ import http from "http";
 import adminRoute from "./api/admin-route";
 import userRoute from "./api/user-route";
 import teacherRoute from "./api/teacher-route";
+import secretaryRoute from "./api/secretary-route";
 
 const port = 9000;
 
@@ -40,6 +41,7 @@ app.get("/", async (req: Request, res: Response) => {
 app.use("/api/user", userRoute);
 app.use("/api/admin", adminRoute);
 app.use("/api/teacher", teacherRoute);
+app.use("/api/secretary", secretaryRoute);
 
 server.listen(port, () => {
   console.log(`Server running on port: ${port}`);

@@ -19,6 +19,7 @@ export default function FeedbackForm5_7({
 	presentationId,
 }: FeedbackForm5_7Props) {
 	const router = useRouter();
+	const { toast } = useToast();
 	const [isPending, startTransition] = useTransition();
 	const [responseCounts, setResponseCounts] = useState({
 		// Pre-Survey
@@ -94,20 +95,40 @@ export default function FeedbackForm5_7({
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
 
-		startTransition(() => {
+		startTransition(async () => {
 			if (validateForm()) {
-				const feedbackData = {
-					presentationId,
-					totalStudents,
-					responseCounts,
-					topApps,
-					classGroup: "5-7",
-				};
-				console.log("Feedback Data:", feedbackData);
+				try {
+					const feedbackData = {
+						presentationId,
+						totalStudents,
+						responseCounts,
+						topApps,
+						classGroup: "5-7",
+					};
+					console.log("Feedback Data:", feedbackData);
 
-				// Save to backend (API call here)
-				alert("Feedback submitted successfully!");
-				router.push("/cyber-warrior/dashboard");
+					const response = await fetch(`/api/secretary/presentation-feedback/${presentationId}`, {
+						method: "PATCH",
+						headers: { "Content-Type": "application/json" },
+						body: JSON.stringify({ feedbackData }),
+					});
+
+					if (!response.ok) throw new Error("Failed to save feedback");
+
+					toast({
+						title: "Success",
+						description: "Feedback submitted successfully!",
+					});
+
+					router.push("/secretary/dashboard");
+				} catch (error) {
+					console.error("Error saving feedback:", error);
+					toast({
+						title: "Error",
+						description: "Failed to submit feedback. Please try again.",
+						variant: "destructive",
+					});
+				}
 			}
 		});
 	};
@@ -205,16 +226,15 @@ export default function FeedbackForm5_7({
 									))}
 								</div>
 								<p
-									className={`mt-2 text-sm ${
-										getQuestionTotal([
-											"q1_mobile",
-											"q1_tablet",
-											"q1_laptop",
-											"q1_other",
-										]) === totalStudents
-											? "text-green-400"
-											: "text-red-400"
-									}`}
+									className={`mt-2 text-sm ${getQuestionTotal([
+										"q1_mobile",
+										"q1_tablet",
+										"q1_laptop",
+										"q1_other",
+									]) === totalStudents
+										? "text-green-400"
+										: "text-red-400"
+										}`}
 								>
 									Total:{" "}
 									{getQuestionTotal([
@@ -264,16 +284,15 @@ export default function FeedbackForm5_7({
 									))}
 								</div>
 								<p
-									className={`mt-2 text-sm ${
-										getQuestionTotal([
-											"q2_less1",
-											"q2_1to3",
-											"q2_4to6",
-											"q2_more6",
-										]) === totalStudents
-											? "text-green-400"
-											: "text-red-400"
-									}`}
+									className={`mt-2 text-sm ${getQuestionTotal([
+										"q2_less1",
+										"q2_1to3",
+										"q2_4to6",
+										"q2_more6",
+									]) === totalStudents
+										? "text-green-400"
+										: "text-red-400"
+										}`}
 								>
 									Total:{" "}
 									{getQuestionTotal([
@@ -346,12 +365,11 @@ export default function FeedbackForm5_7({
 									))}
 								</div>
 								<p
-									className={`mt-2 text-sm ${
-										getQuestionTotal(["q4_knowBetter", "q4_sometimes"]) ===
+									className={`mt-2 text-sm ${getQuestionTotal(["q4_knowBetter", "q4_sometimes"]) ===
 										totalStudents
-											? "text-green-400"
-											: "text-red-400"
-									}`}
+										? "text-green-400"
+										: "text-red-400"
+										}`}
 								>
 									Total: {getQuestionTotal(["q4_knowBetter", "q4_sometimes"])} /{" "}
 									{totalStudents}
@@ -401,12 +419,11 @@ export default function FeedbackForm5_7({
 									))}
 								</div>
 								<p
-									className={`mt-2 text-sm ${
-										getQuestionTotal(["p1_diary", "p1_noChange"]) ===
+									className={`mt-2 text-sm ${getQuestionTotal(["p1_diary", "p1_noChange"]) ===
 										totalStudents
-											? "text-green-400"
-											: "text-red-400"
-									}`}
+										? "text-green-400"
+										: "text-red-400"
+										}`}
 								>
 									Total: {getQuestionTotal(["p1_diary", "p1_noChange"])} /{" "}
 									{totalStudents}
@@ -444,15 +461,14 @@ export default function FeedbackForm5_7({
 									))}
 								</div>
 								<p
-									className={`mt-2 text-sm ${
-										getQuestionTotal([
-											"p2_setLimits",
-											"p2_keepScrolling",
-											"p2_notSure",
-										]) === totalStudents
-											? "text-green-400"
-											: "text-red-400"
-									}`}
+									className={`mt-2 text-sm ${getQuestionTotal([
+										"p2_setLimits",
+										"p2_keepScrolling",
+										"p2_notSure",
+									]) === totalStudents
+										? "text-green-400"
+										: "text-red-400"
+										}`}
 								>
 									Total:{" "}
 									{getQuestionTotal([
@@ -497,12 +513,11 @@ export default function FeedbackForm5_7({
 									))}
 								</div>
 								<p
-									className={`mt-2 text-sm ${
-										getQuestionTotal(["p3_pauseCheck", "p3_justDownload"]) ===
+									className={`mt-2 text-sm ${getQuestionTotal(["p3_pauseCheck", "p3_justDownload"]) ===
 										totalStudents
-											? "text-green-400"
-											: "text-red-400"
-									}`}
+										? "text-green-400"
+										: "text-red-400"
+										}`}
 								>
 									Total:{" "}
 									{getQuestionTotal(["p3_pauseCheck", "p3_justDownload"])} /{" "}
@@ -541,15 +556,14 @@ export default function FeedbackForm5_7({
 									))}
 								</div>
 								<p
-									className={`mt-2 text-sm ${
-										getQuestionTotal([
-											"p4_doneSharing",
-											"p4_mightStill",
-											"p4_alreadySafe",
-										]) === totalStudents
-											? "text-green-400"
-											: "text-red-400"
-									}`}
+									className={`mt-2 text-sm ${getQuestionTotal([
+										"p4_doneSharing",
+										"p4_mightStill",
+										"p4_alreadySafe",
+									]) === totalStudents
+										? "text-green-400"
+										: "text-red-400"
+										}`}
 								>
 									Total:{" "}
 									{getQuestionTotal([

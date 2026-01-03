@@ -46,12 +46,15 @@ model Teacher {
 }
 
 model Institution {
-  institution_id String     @id @default(cuid())
-  name           String     @unique
-  teacherId      String     @unique
-  teacher        Teacher    @relation(fields: [teacherId], references: [id])
-  createdAt      DateTime   @default(now())
+  institution_id String          @id @default(cuid())
+  name           String          @unique
+  teacherId      String          @unique
+  teacher        Teacher         @relation(fields: [teacherId], references: [id])
+  createdAt      DateTime        @default(now())
   Secretary      Secretary?
+  Mass_Activity  Mass_Activity[]
+  ExecutionPlan  ExecutionPlan[]
+  Meeting        Meeting[]
 
   @@index([teacherId])
 }
@@ -85,7 +88,6 @@ model UsersTemp {
   adminAction     ActionType?
   adminActionTime DateTime?
 }
-
 
 model Group {
   id            String           @id @default(cuid())
@@ -125,8 +127,8 @@ model ImpactActivity {
   socialMediaLinks  String?
   mediaLinks        String?
   remarks           String?
-  feedback          String?    // URL to uploaded feedback PDF
-  photos            String[]   // array of string bcoz it can have multiple photos urls
+  feedback          String? // URL to uploaded feedback PDF
+  photos            String[] // array of string bcoz it can have multiple photos urls
 
   createdAt DateTime @default(now())
 
@@ -162,8 +164,8 @@ model Presentation {
   medium        String?
   date          DateTime
   studentsClass Students[]
-  feedback      String?    // URL to uploaded feedback PDF
-  photos        String[]   // array of string bcoz it can have multiple photos urls
+  feedback      String? // URL to uploaded feedback PDF
+  photos        String[] // array of string bcoz it can have multiple photos urls
 
   createdAt DateTime @default(now())
 
@@ -181,91 +183,87 @@ model Students {
 }
 
 model Mass_Activity {
-  id                String    @id @default(cuid())
+  id String @id @default(cuid())
 
   activityName        String
   activityDescription String
   date                DateTime
-  duration            String     
+  duration            String
   location            String
   participantsCount   Int
-  stakeholders        String     
+  stakeholders        String
   socialMediaLinks    String[]
   mediaLinks          String[]
   photos              String[]
 
-  institutionId   String
-  institution     Institution @relation(fields: [institutionId], references: [institution_id])
+  institutionId String
+  institution   Institution @relation(fields: [institutionId], references: [institution_id])
 
+  createdAt DateTime @default(now())
 
-  createdAt           DateTime  @default(now())
   @@index([institutionId])
-  
 }
 
 model ExecutionPlan {
-  id        String   @id @default(cuid())
+  id String @id @default(cuid())
 
-  week      String    
+  week String
 
   // Presentation
-  Presentation_Commited            Int?
-  Presentatin_Achieved            Int?
-  Presentation_Surplus            Int?
+  Presentation_Commited Int?
+  Presentatin_Achieved  Int?
+  Presentation_Surplus  Int?
 
-  Students_Sanitized_Commited     Int?
-  Students_Sanitized_Achieved     Int?
-  Sanitized_Surplus               Int?
+  Students_Sanitized_Commited Int?
+  Students_Sanitized_Achieved Int?
+  Sanitized_Surplus           Int?
 
   //Impact 
-  Impact_Commited                 Int?
-  Impact_Achieved                 Int?
-  Impact_Surplus                  Int?
+  Impact_Commited Int?
+  Impact_Achieved Int?
+  Impact_Surplus  Int?
 
-  Impact_Outreach_Commited        Int?
-  Impact_Outreach_Achieved        Int?
-  Impact_Outreach_Surplus         Int?
+  Impact_Outreach_Commited Int?
+  Impact_Outreach_Achieved Int?
+  Impact_Outreach_Surplus  Int?
 
   // Mass
-  Mass_Commited                   Int?
-  Mass_Achieved                   Int?
-  Mass_Surplus                    Int?
+  Mass_Commited Int?
+  Mass_Achieved Int?
+  Mass_Surplus  Int?
 
-  Mass_Outreach_Commited          Int?
-  Mass_Outreach_Achieved          Int?
-  Mass_Outreach_Surplus           Int?
+  Mass_Outreach_Commited Int?
+  Mass_Outreach_Achieved Int?
+  Mass_Outreach_Surplus  Int?
 
-  
-  institutionId   String
-  institution     Institution @relation(fields: [institutionId], references: [institution_id])
+  institutionId String
+  institution   Institution @relation(fields: [institutionId], references: [institution_id])
 
-  createdAt       DateTime   @default(now())
+  createdAt DateTime @default(now())
 
   @@index([institutionId])
   @@index([week])
 }
 
 model Meeting {
-  id              String    @id @default(cuid())
+  id String @id @default(cuid())
 
-  meetingNumber   String     
-  meetingDate     DateTime   
+  meetingNumber String
+  meetingDate   DateTime
 
-  agendaItems     String[]   
+  agendaItems String[]
 
-  conclusion      String     
-  remark          String?    
+  conclusion String
+  remark     String?
 
-  
-  attendancePhoto String?    // URL to uploaded attendance image
-  geoTagPhoto     String?    // URL to geo-tagged photo
+  attendancePhoto String? // URL to uploaded attendance image
+  geoTagPhoto     String? // URL to geo-tagged photo
 
-  institutionId   String
-  institution     Institution @relation(fields: [institutionId], references: [institution_id])
+  institutionId String
+  institution   Institution @relation(fields: [institutionId], references: [institution_id])
 
-  createdAt       DateTime @default(now())
+  createdAt DateTime @default(now())
 
   @@index([institutionId])
   @@index([meetingDate])
 }
-

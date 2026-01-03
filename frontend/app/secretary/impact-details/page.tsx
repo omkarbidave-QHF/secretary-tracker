@@ -51,20 +51,37 @@ export default function ImpactActivityPage() {
   });
 
   const handleSubmit = (data: any) => {
-    startTransition(() => {
-      console.log("Impact Activity Data:", data);
+    startTransition(async () => {
+      try {
+        console.log("Impact Activity Data:", data);
 
-      const impactId = "IMPACT-" + Date.now();
+        const response = await fetch("/api/secretary/impact-activity", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
 
-      toast({
-        title: "Success!",
-        description: "Impact activity saved. Redirecting to feedback...",
-        duration: 2000,
-      });
+        if (!response.ok) throw new Error("Failed to save impact activity");
 
-      setTimeout(() => {
-        router.push(`/secretary/impact-feedback/${impactId}?participants=${data.participants}`);
-      }, 1000);
+        const savedImpact = await response.json();
+
+        toast({
+          title: "Success!",
+          description: "Impact activity saved. Redirecting to feedback...",
+          duration: 2000,
+        });
+
+        setTimeout(() => {
+          router.push(`/secretary/impact-feedback/${savedImpact.id}?participants=${data.participants}`);
+        }, 1000);
+      } catch (error) {
+        console.error("Error saving impact activity:", error);
+        toast({
+          title: "Error",
+          description: "Failed to save impact activity. Please try again.",
+          variant: "destructive",
+        });
+      }
     });
   };
 
@@ -77,7 +94,7 @@ export default function ImpactActivityPage() {
       <div className="max-w-5xl mx-auto bg-gray-900 rounded-2xl shadow-2xl p-8 border border-gray-700">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
-            
+
             {/* Cyber Warriors Team */}
             <fieldset className="border border-gray-700 rounded-lg p-6 bg-gray-800/50">
               <legend className="text-lg font-semibold text-orange-400 px-3">
@@ -119,7 +136,7 @@ export default function ImpactActivityPage() {
                 Activity Details *
               </legend>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-                
+
                 <FormField
                   control={form.control}
                   name="organization"
@@ -256,7 +273,7 @@ export default function ImpactActivityPage() {
                 Additional Information
               </legend>
               <div className="grid grid-cols-1 gap-6 mt-4">
-                
+
                 <FormField
                   control={form.control}
                   name="resourceInvolved"

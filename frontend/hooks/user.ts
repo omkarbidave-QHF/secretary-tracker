@@ -20,6 +20,7 @@ type FetchUser = {
   id: string;
   name: string;
   email: string;
+  institutionId?: string;
   role: "TEACHER" | "SECRETARY";
 };
 
@@ -50,6 +51,7 @@ export async function getSecretaryById(id: string): Promise<FetchUser | null> {
       id: secretary.id,
       name: secretary.name,
       email: secretary.email,
+      institutionId: secretary.institution_id,
       role: "SECRETARY" as const,
     };
   } else return null;
