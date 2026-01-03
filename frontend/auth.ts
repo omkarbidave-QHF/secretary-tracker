@@ -11,6 +11,7 @@ export type ExtendedUser = {
   name: string;
   email: string;
   role: Role;
+  institutionId?: string;
 };
 
 declare module "next-auth" {
@@ -18,11 +19,11 @@ declare module "next-auth" {
     user: ExtendedUser & DefaultSession["user"];
   }
 
-  interface User extends ExtendedUser {} // Safe now
+  interface User extends ExtendedUser { } // Safe now
 }
 
 declare module "next-auth/jwt" {
-  interface JWT extends ExtendedUser {} // For JWT token (client + server consistency)
+  interface JWT extends ExtendedUser { } // For JWT token (client + server consistency)
 }
 export const {
   auth,
@@ -48,6 +49,10 @@ export const {
       if (token.role && session.user) {
         session.user.role = token.role as Role;
       }
+
+      if (token.institutionId && session.user) {
+        session.user.institutionId = token.institutionId;
+      }
       return session;
     },
     async jwt({ token, user, trigger, session }) {
@@ -56,6 +61,7 @@ export const {
         token.role = user.role;
         token.name = user.name;
         token.email = user.email;
+        token.institutionId = user.institutionId;
         return token;
       }
       if (!token.sub) return token;
@@ -74,7 +80,7 @@ export const {
           existingUser = {
             id: "admin",
             name: "Admin",
-            email: process.env.ADMIN_EMAIL,
+            email: process.env.ADMIN_EMAIL!,
             role: "ADMIN" as const,
           };
           break;
@@ -94,11 +100,12 @@ export const {
 
       if (!existingUser) return token;
 
+      token.institutionId = existingUser.institutionId;
       // token.role = existingUser.role;
       return token;
     },
   },
-  adapter: PrismaAdapter(prisma),
+  adapter: PrismaAdapter(prisma) as any,
   session: { strategy: "jwt" },
 
   providers: [...AuthConfig.providers],

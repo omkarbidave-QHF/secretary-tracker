@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface FeedbackFormCollegeProps {
   totalStudents: number;
@@ -15,6 +16,7 @@ interface FeedbackFormCollegeProps {
 
 export default function FeedbackFormCollege({ totalStudents, presentationId }: FeedbackFormCollegeProps) {
   const router = useRouter();
+  const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   const [responseCounts, setResponseCounts] = useState({
     // Pre-Survey
@@ -79,19 +81,39 @@ export default function FeedbackFormCollege({ totalStudents, presentationId }: F
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    startTransition(() => {
+    startTransition(async () => {
       if (validateForm()) {
-        const feedbackData = {
-          presentationId,
-          totalStudents,
-          responseCounts,
-          classGroup: "college",
-        };
-        console.log("Feedback Data:", feedbackData);
+        try {
+          const feedbackData = {
+            presentationId,
+            totalStudents,
+            responseCounts,
+            classGroup: "college",
+          };
+          console.log("Feedback Data:", feedbackData);
 
-        // Save to backend (API call here)
-        alert("Feedback submitted successfully!");
-        router.push("/cyber-warrior/dashboard");
+          const response = await fetch(`/api/secretary/presentation-feedback/${presentationId}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ feedbackData }),
+          });
+
+          if (!response.ok) throw new Error("Failed to save feedback");
+
+          toast({
+            title: "Success",
+            description: "Feedback submitted successfully!",
+          });
+
+          router.push("/secretary/dashboard");
+        } catch (error) {
+          console.error("Error saving feedback:", error);
+          toast({
+            title: "Error",
+            description: "Failed to submit feedback. Please try again.",
+            variant: "destructive",
+          });
+        }
       }
     });
   };
@@ -168,11 +190,10 @@ export default function FeedbackFormCollege({ totalStudents, presentationId }: F
                   ))}
                 </div>
                 <p
-                  className={`mt-2 text-sm ${
-                    getQuestionTotal(["q1_neverShare", "q1_sometimesAvoid", "q1_feelsNormal"]) === totalStudents
-                      ? "text-green-400"
-                      : "text-red-400"
-                  }`}
+                  className={`mt-2 text-sm ${getQuestionTotal(["q1_neverShare", "q1_sometimesAvoid", "q1_feelsNormal"]) === totalStudents
+                    ? "text-green-400"
+                    : "text-red-400"
+                    }`}
                 >
                   Total: {getQuestionTotal(["q1_neverShare", "q1_sometimesAvoid", "q1_feelsNormal"])} / {totalStudents}
                   {getQuestionTotal(["q1_neverShare", "q1_sometimesAvoid", "q1_feelsNormal"]) === totalStudents && " ✓"}
@@ -204,11 +225,10 @@ export default function FeedbackFormCollege({ totalStudents, presentationId }: F
                   ))}
                 </div>
                 <p
-                  className={`mt-2 text-sm ${
-                    getQuestionTotal(["q2_blockReport", "q2_ignore", "q2_clickCuriosity"]) === totalStudents
-                      ? "text-green-400"
-                      : "text-red-400"
-                  }`}
+                  className={`mt-2 text-sm ${getQuestionTotal(["q2_blockReport", "q2_ignore", "q2_clickCuriosity"]) === totalStudents
+                    ? "text-green-400"
+                    : "text-red-400"
+                    }`}
                 >
                   Total: {getQuestionTotal(["q2_blockReport", "q2_ignore", "q2_clickCuriosity"])} / {totalStudents}
                   {getQuestionTotal(["q2_blockReport", "q2_ignore", "q2_clickCuriosity"]) === totalStudents && " ✓"}
@@ -240,11 +260,10 @@ export default function FeedbackFormCollege({ totalStudents, presentationId }: F
                   ))}
                 </div>
                 <p
-                  className={`mt-2 text-sm ${
-                    getQuestionTotal(["q3_always", "q3_sometimes", "q3_rarelyNever"]) === totalStudents
-                      ? "text-green-400"
-                      : "text-red-400"
-                  }`}
+                  className={`mt-2 text-sm ${getQuestionTotal(["q3_always", "q3_sometimes", "q3_rarelyNever"]) === totalStudents
+                    ? "text-green-400"
+                    : "text-red-400"
+                    }`}
                 >
                   Total: {getQuestionTotal(["q3_always", "q3_sometimes", "q3_rarelyNever"])} / {totalStudents}
                   {getQuestionTotal(["q3_always", "q3_sometimes", "q3_rarelyNever"]) === totalStudents && " ✓"}
@@ -276,11 +295,10 @@ export default function FeedbackFormCollege({ totalStudents, presentationId }: F
                   ))}
                 </div>
                 <p
-                  className={`mt-2 text-sm ${
-                    getQuestionTotal(["q4_keepPrivate", "q4_postCarefully", "q4_postEverything"]) === totalStudents
-                      ? "text-green-400"
-                      : "text-red-400"
-                  }`}
+                  className={`mt-2 text-sm ${getQuestionTotal(["q4_keepPrivate", "q4_postCarefully", "q4_postEverything"]) === totalStudents
+                    ? "text-green-400"
+                    : "text-red-400"
+                    }`}
                 >
                   Total: {getQuestionTotal(["q4_keepPrivate", "q4_postCarefully", "q4_postEverything"])} / {totalStudents}
                   {getQuestionTotal(["q4_keepPrivate", "q4_postCarefully", "q4_postEverything"]) === totalStudents && " ✓"}
@@ -319,11 +337,10 @@ export default function FeedbackFormCollege({ totalStudents, presentationId }: F
                   ))}
                 </div>
                 <p
-                  className={`mt-2 text-sm ${
-                    getQuestionTotal(["p1_verifyBefore", "p1_extraCareful", "p1_stillUnsure"]) === totalStudents
-                      ? "text-green-400"
-                      : "text-red-400"
-                  }`}
+                  className={`mt-2 text-sm ${getQuestionTotal(["p1_verifyBefore", "p1_extraCareful", "p1_stillUnsure"]) === totalStudents
+                    ? "text-green-400"
+                    : "text-red-400"
+                    }`}
                 >
                   Total: {getQuestionTotal(["p1_verifyBefore", "p1_extraCareful", "p1_stillUnsure"])} / {totalStudents}
                   {getQuestionTotal(["p1_verifyBefore", "p1_extraCareful", "p1_stillUnsure"]) === totalStudents && " ✓"}
@@ -355,11 +372,10 @@ export default function FeedbackFormCollege({ totalStudents, presentationId }: F
                   ))}
                 </div>
                 <p
-                  className={`mt-2 text-sm ${
-                    getQuestionTotal(["p2_reportInform", "p2_ignore", "p2_notBigDeal"]) === totalStudents
-                      ? "text-green-400"
-                      : "text-red-400"
-                  }`}
+                  className={`mt-2 text-sm ${getQuestionTotal(["p2_reportInform", "p2_ignore", "p2_notBigDeal"]) === totalStudents
+                    ? "text-green-400"
+                    : "text-red-400"
+                    }`}
                 >
                   Total: {getQuestionTotal(["p2_reportInform", "p2_ignore", "p2_notBigDeal"])} / {totalStudents}
                   {getQuestionTotal(["p2_reportInform", "p2_ignore", "p2_notBigDeal"]) === totalStudents && " ✓"}
@@ -391,11 +407,10 @@ export default function FeedbackFormCollege({ totalStudents, presentationId }: F
                   ))}
                 </div>
                 <p
-                  className={`mt-2 text-sm ${
-                    getQuestionTotal(["p3_secureSettings", "p3_startSlowly", "p3_fineAsIs"]) === totalStudents
-                      ? "text-green-400"
-                      : "text-red-400"
-                  }`}
+                  className={`mt-2 text-sm ${getQuestionTotal(["p3_secureSettings", "p3_startSlowly", "p3_fineAsIs"]) === totalStudents
+                    ? "text-green-400"
+                    : "text-red-400"
+                    }`}
                 >
                   Total: {getQuestionTotal(["p3_secureSettings", "p3_startSlowly", "p3_fineAsIs"])} / {totalStudents}
                   {getQuestionTotal(["p3_secureSettings", "p3_startSlowly", "p3_fineAsIs"]) === totalStudents && " ✓"}
@@ -427,11 +442,10 @@ export default function FeedbackFormCollege({ totalStudents, presentationId }: F
                   ))}
                 </div>
                 <p
-                  className={`mt-2 text-sm ${
-                    getQuestionTotal(["p4_morePrivate", "p4_lessPersonal", "p4_noChange"]) === totalStudents
-                      ? "text-green-400"
-                      : "text-red-400"
-                  }`}
+                  className={`mt-2 text-sm ${getQuestionTotal(["p4_morePrivate", "p4_lessPersonal", "p4_noChange"]) === totalStudents
+                    ? "text-green-400"
+                    : "text-red-400"
+                    }`}
                 >
                   Total: {getQuestionTotal(["p4_morePrivate", "p4_lessPersonal", "p4_noChange"])} / {totalStudents}
                   {getQuestionTotal(["p4_morePrivate", "p4_lessPersonal", "p4_noChange"]) === totalStudents && " ✓"}
