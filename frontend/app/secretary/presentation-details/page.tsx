@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { useSessionContext } from "@/context/session";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { presentationSchema } from "@/lib/validations/presentation";
 import { calculateStudentTotals } from "@/lib/utils/form-helper";
@@ -30,6 +31,7 @@ import type { ClassGroup, StudentCounts } from "@/types/presentation";
 
 export default function PresentationDetailsPage() {
     const router = useRouter();
+    const { session } = useSessionContext();
     const [isPending, startTransition] = useTransition();
     const [studentCounts, setStudentCounts] = useState<StudentCounts>({
         totalBoys: 0,
@@ -97,14 +99,62 @@ export default function PresentationDetailsPage() {
             return;
         }
 
-        startTransition(() => {
-            console.log("Presentation Data:", data);
+        startTransition(async () => {
+            try {
+                console.log("Presentation Data:", data);
 
-            const presentationId = "PRES-" + Date.now();
+                // Prepare student data for backend
+                const studentData = [];
+                if (data.classGroup === "5-7") {
+                    studentData.push(
+                        { classType: "STD_5", boysCount: data.std5Boys || 0, GirlsCount: data.std5Girls || 0 },
+                        { classType: "STD_6", boysCount: data.std6Boys || 0, GirlsCount: data.std6Girls || 0 },
+                        { classType: "STD_7", boysCount: data.std7Boys || 0, GirlsCount: data.std7Girls || 0 }
+                    );
+                } else if (data.classGroup === "8-10") {
+                    studentData.push(
+                        { classType: "STD_8", boysCount: data.std8Boys || 0, GirlsCount: data.std8Girls || 0 },
+                        { classType: "STD_9", boysCount: data.std9Boys || 0, GirlsCount: data.std9Girls || 0 },
+                        { classType: "STD_10", boysCount: data.std10Boys || 0, GirlsCount: data.std10Girls || 0 }
+                    );
+                } else if (data.classGroup === "college") {
+                    studentData.push(
+                        { classType: "STD_11", boysCount: data.std11Boys || 0, GirlsCount: data.std11Girls || 0 },
+                        { classType: "STD_12", boysCount: data.std12Boys || 0, GirlsCount: data.std12Girls || 0 },
+                        { classType: "COLLEGE", boysCount: data.collegeBoys || 0, GirlsCount: data.collegeGirls || 0 }
+                    );
+                }
 
-            router.push(
-                `/secretary/feedback/${presentationId}?classGroup=${data.classGroup}&totalStudents=${studentCounts.totalStudents}`
-            );
+                if (!session?.user?.institutionId) {
+                    alert("Institution ID not found. Please login again.");
+                    return;
+                }
+
+                const response = await fetch("/api/secretary/presentation", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        ...data,
+                        studentData,
+                        institutionId: session.user.institutionId,
+                    }),
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error("Failed to save presentation. Status:", response.status, "Body:", errorText);
+                    throw new Error(`Failed to save presentation: ${response.status} ${errorText}`);
+                }
+
+                const savedPresentation = await response.json();
+
+                router.push(
+                    `/secretary/feedback/${savedPresentation.id}?classGroup=${data.classGroup}&totalStudents=${studentCounts.totalStudents}`
+                );
+            } catch (error) {
+                console.error("Error saving presentation:", error);
+                alert(`Failed to save presentation report. Details: ${error}`);
+            }
         });
     };
 
@@ -216,7 +266,7 @@ export default function PresentationDetailsPage() {
             <div className="max-w-6xl mx-auto bg-gray-900 rounded-2xl shadow-2xl p-8 border border-gray-700">
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(handlePresentationSubmit)} className="space-y-8">
-                        
+
                         {/* Cyber Warriors Fieldset - SINGLE DROPDOWN */}
                         <fieldset className="border border-gray-700 rounded-lg p-6 bg-gray-800/50">
                             <legend className="text-lg font-semibold text-orange-400 px-3">
@@ -236,8 +286,8 @@ export default function PresentationDetailsPage() {
                                                     </SelectTrigger>
                                                     <SelectContent className="bg-gray-700 border-gray-600">
                                                         {CYBER_WARRIOR_TEAMS.map((team) => (
-                                                            <SelectItem 
-                                                                key={team.value} 
+                                                            <SelectItem
+                                                                key={team.value}
                                                                 value={team.value}
                                                                 className="text-gray-100 focus:bg-gray-600 focus:text-white"
                                                             >

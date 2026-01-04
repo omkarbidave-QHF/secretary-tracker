@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface FeedbackForm8_10Props {
   totalStudents: number;
@@ -15,6 +16,7 @@ interface FeedbackForm8_10Props {
 
 export default function FeedbackForm8_10({ totalStudents, presentationId }: FeedbackForm8_10Props) {
   const router = useRouter();
+  const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   const [responseCounts, setResponseCounts] = useState({
     // Pre-Survey
@@ -79,19 +81,39 @@ export default function FeedbackForm8_10({ totalStudents, presentationId }: Feed
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    startTransition(() => {
+    startTransition(async () => {
       if (validateForm()) {
-        const feedbackData = {
-          presentationId,
-          totalStudents,
-          responseCounts,
-          classGroup: "8-10",
-        };
-        console.log("Feedback Data:", feedbackData);
+        try {
+          const feedbackData = {
+            presentationId,
+            totalStudents,
+            responseCounts,
+            classGroup: "8-10",
+          };
+          console.log("Feedback Data:", feedbackData);
 
-        // Save to backend (API call here)
-        alert("Feedback submitted successfully!");
-        router.push("/cyber-warrior/dashboard");
+          const response = await fetch(`/api/secretary/presentation-feedback/${presentationId}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ feedbackData }),
+          });
+
+          if (!response.ok) throw new Error("Failed to save feedback");
+
+          toast({
+            title: "Success",
+            description: "Feedback submitted successfully!",
+          });
+
+          router.push("/secretary/dashboard");
+        } catch (error) {
+          console.error("Error saving feedback:", error);
+          toast({
+            title: "Error",
+            description: "Failed to submit feedback. Please try again.",
+            variant: "destructive",
+          });
+        }
       }
     });
   };
@@ -130,7 +152,7 @@ export default function FeedbackForm8_10({ totalStudents, presentationId }: Feed
           </AlertDescription>
         </Alert>
       )}
-
+      ka
       <div className="bg-gray-900 rounded-2xl shadow-2xl p-8 border border-gray-700">
         <p className="text-gray-300 mb-6">
           The survey will be conducted orally by our Cyber Warriors. Students will respond by raising their hands.
@@ -168,11 +190,10 @@ export default function FeedbackForm8_10({ totalStudents, presentationId }: Feed
                   ))}
                 </div>
                 <p
-                  className={`mt-2 text-sm ${
-                    getQuestionTotal(["q1_acceptKnown", "q1_addNew", "q1_ignoreSometimes"]) === totalStudents
-                      ? "text-green-400"
-                      : "text-red-400"
-                  }`}
+                  className={`mt-2 text-sm ${getQuestionTotal(["q1_acceptKnown", "q1_addNew", "q1_ignoreSometimes"]) === totalStudents
+                    ? "text-green-400"
+                    : "text-red-400"
+                    }`}
                 >
                   Total: {getQuestionTotal(["q1_acceptKnown", "q1_addNew", "q1_ignoreSometimes"])} / {totalStudents}
                   {getQuestionTotal(["q1_acceptKnown", "q1_addNew", "q1_ignoreSometimes"]) === totalStudents && " ✓"}
@@ -202,11 +223,10 @@ export default function FeedbackForm8_10({ totalStudents, presentationId }: Feed
                   ))}
                 </div>
                 <p
-                  className={`mt-2 text-sm ${
-                    getQuestionTotal(["q2_unique", "q2_sameAll", "q2_simple"]) === totalStudents
-                      ? "text-green-400"
-                      : "text-red-400"
-                  }`}
+                  className={`mt-2 text-sm ${getQuestionTotal(["q2_unique", "q2_sameAll", "q2_simple"]) === totalStudents
+                    ? "text-green-400"
+                    : "text-red-400"
+                    }`}
                 >
                   Total: {getQuestionTotal(["q2_unique", "q2_sameAll", "q2_simple"])} / {totalStudents}
                   {getQuestionTotal(["q2_unique", "q2_sameAll", "q2_simple"]) === totalStudents && " ✓"}
@@ -238,11 +258,10 @@ export default function FeedbackForm8_10({ totalStudents, presentationId }: Feed
                   ))}
                 </div>
                 <p
-                  className={`mt-2 text-sm ${
-                    getQuestionTotal(["q3_never", "q3_sometimes", "q3_withoutThinking"]) === totalStudents
-                      ? "text-green-400"
-                      : "text-red-400"
-                  }`}
+                  className={`mt-2 text-sm ${getQuestionTotal(["q3_never", "q3_sometimes", "q3_withoutThinking"]) === totalStudents
+                    ? "text-green-400"
+                    : "text-red-400"
+                    }`}
                 >
                   Total: {getQuestionTotal(["q3_never", "q3_sometimes", "q3_withoutThinking"])} / {totalStudents}
                   {getQuestionTotal(["q3_never", "q3_sometimes", "q3_withoutThinking"]) === totalStudents && " ✓"}
@@ -274,11 +293,10 @@ export default function FeedbackForm8_10({ totalStudents, presentationId }: Feed
                   ))}
                 </div>
                 <p
-                  className={`mt-2 text-sm ${
-                    getQuestionTotal(["q4_secureApp", "q4_parentPhone", "q4_dontCheck"]) === totalStudents
-                      ? "text-green-400"
-                      : "text-red-400"
-                  }`}
+                  className={`mt-2 text-sm ${getQuestionTotal(["q4_secureApp", "q4_parentPhone", "q4_dontCheck"]) === totalStudents
+                    ? "text-green-400"
+                    : "text-red-400"
+                    }`}
                 >
                   Total: {getQuestionTotal(["q4_secureApp", "q4_parentPhone", "q4_dontCheck"])} / {totalStudents}
                   {getQuestionTotal(["q4_secureApp", "q4_parentPhone", "q4_dontCheck"]) === totalStudents && " ✓"}
@@ -317,11 +335,10 @@ export default function FeedbackForm8_10({ totalStudents, presentationId }: Feed
                   ))}
                 </div>
                 <p
-                  className={`mt-2 text-sm ${
-                    getQuestionTotal(["p1_dontAccept", "p1_mightAccept", "p1_askAdult"]) === totalStudents
-                      ? "text-green-400"
-                      : "text-red-400"
-                  }`}
+                  className={`mt-2 text-sm ${getQuestionTotal(["p1_dontAccept", "p1_mightAccept", "p1_askAdult"]) === totalStudents
+                    ? "text-green-400"
+                    : "text-red-400"
+                    }`}
                 >
                   Total: {getQuestionTotal(["p1_dontAccept", "p1_mightAccept", "p1_askAdult"])} / {totalStudents}
                   {getQuestionTotal(["p1_dontAccept", "p1_mightAccept", "p1_askAdult"]) === totalStudents && " ✓"}
@@ -351,11 +368,10 @@ export default function FeedbackForm8_10({ totalStudents, presentationId }: Feed
                   ))}
                 </div>
                 <p
-                  className={`mt-2 text-sm ${
-                    getQuestionTotal(["p2_strong2FA", "p2_tryLater", "p2_complicated"]) === totalStudents
-                      ? "text-green-400"
-                      : "text-red-400"
-                  }`}
+                  className={`mt-2 text-sm ${getQuestionTotal(["p2_strong2FA", "p2_tryLater", "p2_complicated"]) === totalStudents
+                    ? "text-green-400"
+                    : "text-red-400"
+                    }`}
                 >
                   Total: {getQuestionTotal(["p2_strong2FA", "p2_tryLater", "p2_complicated"])} / {totalStudents}
                   {getQuestionTotal(["p2_strong2FA", "p2_tryLater", "p2_complicated"]) === totalStudents && " ✓"}
@@ -387,11 +403,10 @@ export default function FeedbackForm8_10({ totalStudents, presentationId }: Feed
                   ))}
                 </div>
                 <p
-                  className={`mt-2 text-sm ${
-                    getQuestionTotal(["p3_neverAgain", "p3_stillLearning", "p3_notBigDeal"]) === totalStudents
-                      ? "text-green-400"
-                      : "text-red-400"
-                  }`}
+                  className={`mt-2 text-sm ${getQuestionTotal(["p3_neverAgain", "p3_stillLearning", "p3_notBigDeal"]) === totalStudents
+                    ? "text-green-400"
+                    : "text-red-400"
+                    }`}
                 >
                   Total: {getQuestionTotal(["p3_neverAgain", "p3_stillLearning", "p3_notBigDeal"])} / {totalStudents}
                   {getQuestionTotal(["p3_neverAgain", "p3_stillLearning", "p3_notBigDeal"]) === totalStudents && " ✓"}
@@ -423,11 +438,10 @@ export default function FeedbackForm8_10({ totalStudents, presentationId }: Feed
                   ))}
                 </div>
                 <p
-                  className={`mt-2 text-sm ${
-                    getQuestionTotal(["p4_doubleCheck", "p4_askTrusted", "p4_sameBefore"]) === totalStudents
-                      ? "text-green-400"
-                      : "text-red-400"
-                  }`}
+                  className={`mt-2 text-sm ${getQuestionTotal(["p4_doubleCheck", "p4_askTrusted", "p4_sameBefore"]) === totalStudents
+                    ? "text-green-400"
+                    : "text-red-400"
+                    }`}
                 >
                   Total: {getQuestionTotal(["p4_doubleCheck", "p4_askTrusted", "p4_sameBefore"])} / {totalStudents}
                   {getQuestionTotal(["p4_doubleCheck", "p4_askTrusted", "p4_sameBefore"]) === totalStudents && " ✓"}
