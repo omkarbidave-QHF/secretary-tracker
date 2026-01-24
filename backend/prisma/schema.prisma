@@ -267,3 +267,33 @@ model Meeting {
   @@index([institutionId])
   @@index([meetingDate])
 }
+
+model WorkSubmission {
+  id              String   @id @default(uuid())
+
+  submissionType  SubmissionType
+  submittedById   String
+  submittedByRole Role
+
+  reviewByRole    Role
+
+  data            Json
+
+  status          ApprovalStatus
+  remarks         String?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+enum ApprovalStatus {
+  DRAFT
+  PENDING_REVIEW
+  REJECTED
+  APPROVED_FINAL
+}
+
+enum SubmissionType {
+  SECRETARY_WORK
+  TEACHER_WORK
+}
